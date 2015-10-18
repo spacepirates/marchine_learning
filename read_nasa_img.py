@@ -1,5 +1,5 @@
-
-# Author: Gael Varoquaux <gael dot varoquaux at normalesup dot org>
+# Adapted from the ML examples in scikit learn.
+# Original Author: Gael Varoquaux <gael dot varoquaux at normalesup dot org>
 # License: BSD 3 clause
 
 # Standard scientific Python imports
