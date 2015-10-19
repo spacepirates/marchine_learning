@@ -1,0 +1,12 @@
+img {
+	width:900px;
+	height:900px;
+}
+
+#currImage {
+	float:left;
+}
+
+#currImageInfo {
+	float:right;
+}
