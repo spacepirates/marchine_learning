@@ -9,7 +9,7 @@ JSONObject = json.load(jsonstream)
 sol_data = JSONObject['nodes']
 for x in range(0, len(sol_data)):
     solNameData = sol_data[x]
-    dir_name = solNameData['name']
+    dir_name = "images/" + solNameData['name']
     os.mkdir(dir_name)
 
 
