@@ -10,14 +10,37 @@ $(document).ready(function(){
 	//index of the current image the user is viewing
 	var currImage = 0;
 
+	var classifications = [
+		"interesting",
+		"crater",
+		"rocks",
+		"arm_visible",
+		"wheels",
+		"rought_terrain",
+		"sand_grooves",
+		"hills",
+		"sun_stars_moon",
+		"sky",
+		"gravel",
+		"tire_tracks",
+		"photo_artifact",
+		"dirty_camera",
+		"rover_shadow",
+		"dusty_sky",
+		"dark",
+		"soft_sand"
+	];
+
 	//user is submitting labels for current image
 	$("#doneButton").click(function(){
 		//add user input to features obj
 		var feature = new Object();
 
 		feature.imagePath = images[currImage].path;
-		feature.interesting = $('input[name="interesting"]:checked').length > 0;
-		feature.crater = $('input[name="crater"]:checked').length > 0;
+
+		for (var i = 0; i < classifications.length; i++){
+			feature[classifications[i]] = $('input[name=' + classifications[i] + ']:checked').length > 0;
+		}
 
 		features.push(feature);
 
@@ -27,11 +50,24 @@ $(document).ready(function(){
 
 	function generateCSV(){
 		//init csv data with headers
-		var csvData = [['imagePath','interesting','crater']];
+		var csvData = [['imagePath']];
+
+		//add classifications to headers
+		for (var i = 0; i < classifications.length; i++){
+			csvData.push(classifications[i]);
+		}
 
 		//add features to csv data
 		for (var i = 0; i < features.length; i++){ 
-		    csvData.push([features[i].imagePath, features[i].interesting, features[i].crater]);
+			var tmpRow = [];
+
+			tmpRow.push(features[i].imagePath);
+
+			for (var i = 0; i < classifications.length; i++){
+				tmpRow.push(features[i][classifications[i]]);
+			}
+
+			csvData.push(tmpRow);
 		}
 
 		var csvRows = [];
@@ -70,9 +106,17 @@ $(document).ready(function(){
 		}
 	}
 
+	//adds all classifications to HTML
+	function initHTML(){
+		for (var i = 0; i < classifications.length; i++){
+			var tmpHTML = "<input type='checkbox' name='" + classifications[i] + "' value='" + classifications[i] + "'> " + classifications[i] + "<br>";
+
+			$("#doneButton").prepend();
+		}
+	}
+
 	//finds all of the images in the root URL and subdirs
-	function init(){
-	    console.log("inside init");
+	function initData(){
 		var rootURL = "images/";
 		$.ajax({
 		  url: rootURL,
@@ -120,5 +164,6 @@ $(document).ready(function(){
 		});
 	}
 
-	init();
+	initHTML();
+	initData();
 });
