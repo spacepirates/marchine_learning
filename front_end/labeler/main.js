@@ -72,12 +72,15 @@ $(document).ready(function(){
 
 	//finds all of the images in the root URL and subdirs
 	function init(){
-		var rootURL = "http://localhost:8000/images/";
+	    console.log("inside init");
+		var rootURL = "images/";
 		$.ajax({
 		  url: rootURL,
 		  success: function(data){
-		     $(data).find("li > a").each(function(){
-		        if ($(this).attr("href").indexOf("sol") != -1){
+		      console.log(data);
+		     $(data).find("td > a").each(function(){
+		        if ($(this).attr("href").indexOf("SOL") != -1){
+			    
 		        	var sol = $(this).attr("href");
 		        	
 		        	//chop off '/' from sol
@@ -92,8 +95,9 @@ $(document).ready(function(){
 			   		$.ajax({
 						  url: rootURL + sols[i],
 						  success: function(data){
-						     $(data).find("li > a").each(function(){
-						        if ($(this).attr("href").indexOf("image") != -1){
+						      console.log(data);
+						     $(data).find("td > a").each(function(){
+						        if ($(this).attr("href").indexOf(".gif") != -1){
 						        	var image = new Object();
 
 						        	image.name = $(this).attr("href");

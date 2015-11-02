@@ -8,11 +8,15 @@
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, svm, metrics
 import numpy
-import os
-from gif_reader import get_gif_num_frames
 from PIL import Image
 
+import os
+import time
+from datetime import datetime
+
 #class Images:
+
+NUM_FILES=30
 
 class MyDataSet:
     images = numpy.ndarray(shape=(3,3))
@@ -38,13 +42,32 @@ def read_image_file(file_name):
     ints = [ord(b) for b in im.tobytes()]
     return ints
 
-def read_images(file_names):
+def read_images(file_names, n_samples):
     images = []
-    for file_name in file_names:
+    for file_name in file_names[0:n_samples]:
+        #yield read_image_file(file_name)
         images.append(read_image_file(file_name))
     return images
+    
 
-def read_targets(csv_file_name, gif_file_order, tag_index):
+def read_gif_names(csv_file_name, tag_index, n_samples):
+    gif_files = []
+    with open(csv_file_name) as f:
+        csv_data = f.read()
+        lines = csv_data.split('\n')
+        tags = {}
+        num_lines = 0
+        for l in lines:
+            if num_lines == 0:
+                num_lines += 1
+                continue
+            num_lines += 1
+            vals = l.split(',')
+            filename = vals[0]
+            gif_files.append(filename)
+    return gif_files[0:n_samples]
+
+def read_targets(csv_file_name, tag_index, gif_files, n_samples):
     """
     csv file holds data like
       f1 t1 t2 t3
@@ -61,24 +84,45 @@ def read_targets(csv_file_name, gif_file_order, tag_index):
         csv_data = f.read()
         lines = csv_data.split('\n')
         tags = {}
+        num_lines = 0
         for l in lines:
+            if num_lines == 0:
+                num_lines += 1
+                continue
+            num_lines += 1
             vals = l.split(',')
-            tags[vals[0]] = vals[1 + tag_index]
-        return [tags[x] for x in gif_file_order]
+            filename = vals[0]
+            classification=vals[1+tag_index]
+            if classification == "true":
+                classification = 1
+            else:
+                classification = 0
+            tags[filename] = classification
+
+        result = [tags[x] for x in gif_files if x in tags]
+        result = result[0:n_samples]
+        return result
     raise ValueError("Couldn't parse data correctly")
 
-def nasa_dataset(gif_names):
-    res = MyDataSet()
-    
-    res.images = numpy.array(read_images(gif_names))
-    res.target = read_targets("results.csv", gif_names, 0)
+def nasa_dataset(n_samples):
+    res = MyDataSet()    
+    gif_names = read_gif_names("results.csv", 0, n_samples)
+    res.target = read_targets("results.csv", 0, gif_names, n_samples) 
+    res.images = numpy.array(read_images(gif_names, n_samples))
     return res
 
-gifs = find_gif_names("images")
+
+
+####################################################
+# Begin.
+#
+
+curr_time = datetime.now()
+
+#gifs = find_gif_names("images")
 
 # The digits dataset
-#digits = datasets.load_digits()
-digits = nasa_dataset(gifs)
+digits = nasa_dataset(NUM_FILES)
 
 # The data that we are interested in is made of 8x8 images of digits, let's
 # have a look at the first 3 images, stored in the `images` attribute of the
@@ -86,6 +130,9 @@ digits = nasa_dataset(gifs)
 # pylab.imread.  Note that each image must have the same size. For these
 # images, we know which digit they represent: it is given in the 'target' of
 # the dataset.
+#for image in digits.images:
+#    print(image)
+
 images_and_labels = list(zip(digits.images, digits.target))
 #for index, (image, label) in enumerate(images_and_labels[:4]):
     #plt.subplot(2, 4, index + 1)
@@ -102,21 +149,39 @@ data = digits.images.reshape((n_samples, -1))
 classifier = svm.SVC(gamma=0.001)
 
 # We learn the digits on the first half of the digits
-classifier.fit(data[:n_samples / 2], digits.target[:n_samples / 2])
+try:
+    print(digits.images[:n_samples / 2])
+    print(digits.target[:n_samples / 2])
+    classifier.fit(digits.images[:n_samples / 2], digits.target[:n_samples / 2])
+    classifier.fit(digits.images[:n_samples / 2], digits.target[:n_samples / 2])
+    
+    # Now predict the value of the digit on the second half:
+    expected = digits.target[n_samples / 2:]
+    predicted = classifier.predict(data[n_samples / 2:])
 
-# Now predict the value of the digit on the second half:
-expected = digits.target[n_samples / 2:]
-predicted = classifier.predict(data[n_samples / 2:])
+    print(expected)
+    print(predicted)
 
-print("Classification report for classifier %s:\n%s\n"
-      % (classifier, metrics.classification_report(expected, predicted)))
-print("Confusion matrix:\n%s" % metrics.confusion_matrix(expected, predicted))
+    print("Classification report for classifier %s:\n%s\n"
+          % (classifier, metrics.classification_report(expected, predicted)))
+    print("Confusion matrix:\n%s" % metrics.confusion_matrix(expected, predicted))
 
-images_and_predictions = list(zip(digits.images[n_samples / 2:], predicted))
-#for index, (image, prediction) in enumerate(images_and_predictions[:4]):
+    images_and_predictions = list(zip(digits.images[n_samples / 2:], predicted))
+except:
+    print("finished with errors.")
+    time_finished = datetime.now()
+    print(curr_time)
+    print(time_finished)
+    raise
+
+time_finished = datetime.now()
+print(curr_time)
+print(time_finished)
+
+    #for index, (image, prediction) in enumerate(images_and_predictions[:4]):
     #plt.subplot(2, 4, index + 5)
     #plt.axis('off')
     #plt.imshow(image, cmap=plt.cm.gray_r, interpolation='nearest')
     #plt.title('Prediction: %i' % prediction)
-
-#plt.show()
+    
+    #plt.show()
