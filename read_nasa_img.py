@@ -71,7 +71,7 @@ def read_targets(csv_file_name, tag_index, gif_files, n_samples):
     """
     csv file holds data like
       f1 t1 t2 t3
-      f2 t1 t2 t3
+     f2 t1 t2 t3
     where f1 and f2 are the file names, and ti holds the whether
     the ith tag is 0 or 1 for the file f1, f2
     
@@ -107,7 +107,7 @@ def read_targets(csv_file_name, tag_index, gif_files, n_samples):
 def nasa_dataset(n_samples):
     res = MyDataSet()    
     gif_names = read_gif_names("results.csv", 0, n_samples)
-    res.target = read_targets("results.csv", 0, gif_names, n_samples) 
+    res.target = read_targets("results.csv", 14, gif_names, n_samples) 
     res.images = numpy.array(read_images(gif_names, n_samples))
     return res
 
@@ -150,8 +150,8 @@ classifier = svm.SVC(gamma=0.001)
 
 # We learn the digits on the first half of the digits
 try:
-    print(digits.images[:n_samples / 2])
-    print(digits.target[:n_samples / 2])
+    #print(digits.images[:n_samples / 2])
+    #print(digits.target[:n_samples / 2])
     classifier.fit(digits.images[:n_samples / 2], digits.target[:n_samples / 2])
     classifier.fit(digits.images[:n_samples / 2], digits.target[:n_samples / 2])
     

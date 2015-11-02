@@ -48,13 +48,17 @@ $(document).ready(function(){
 		nextImage();
 	});
 
+	$("#generateCSV").click(function(){
+		generateCSV();
+	});
+
 	function generateCSV(){
 		//init csv data with headers
 		var csvData = [['imagePath']];
 
 		//add classifications to headers
 		for (var i = 0; i < classifications.length; i++){
-			csvData.push(classifications[i]);
+			csvData[0].push(classifications[i]);
 		}
 
 		//add features to csv data
@@ -63,8 +67,8 @@ $(document).ready(function(){
 
 			tmpRow.push(features[i].imagePath);
 
-			for (var i = 0; i < classifications.length; i++){
-				tmpRow.push(features[i][classifications[i]]);
+			for (var j = 0; j < classifications.length; j++){
+				tmpRow.push(features[i][classifications[j]]);
 			}
 
 			csvData.push(tmpRow);
@@ -111,7 +115,7 @@ $(document).ready(function(){
 		for (var i = 0; i < classifications.length; i++){
 			var tmpHTML = "<input type='checkbox' name='" + classifications[i] + "' value='" + classifications[i] + "'> " + classifications[i] + "<br>";
 
-			$("#doneButton").prepend();
+			$("#doneButton").before(tmpHTML);
 		}
 	}
 
